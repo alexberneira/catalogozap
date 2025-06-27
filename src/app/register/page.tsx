@@ -21,10 +21,16 @@ export default function Register() {
     setError('')
 
     try {
-      // Registrar usuário no Supabase Auth
+      // Registrar usuário no Supabase Auth com metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username: username,
+            whatsapp_number: whatsappNumber,
+          }
+        }
       })
 
       if (authError) {
@@ -33,26 +39,10 @@ export default function Register() {
       }
 
       if (authData.user) {
-        // Criar perfil do usuário na tabela users
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: authData.user.id,
-              email,
-              username,
-              whatsapp_number: whatsappNumber,
-              is_active: true,
-            },
-          ])
-
-        if (profileError) {
-          setError('Erro ao criar perfil. Tente novamente.')
-          return
-        }
-
-        // Redirecionar para dashboard
-        router.push('/dashboard')
+        // Aguardar um pouco para o trigger processar
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 1000)
       }
     } catch (error) {
       setError('Erro inesperado. Tente novamente.')
