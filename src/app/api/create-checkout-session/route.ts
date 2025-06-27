@@ -1,20 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabaseClient'
+import { createClient } from '@supabase/supabase-js'
 import stripe from '@/lib/stripe'
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(request: NextRequest) {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Usuário não autenticado' },
-        { status: 401 }
-      )
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+
+    if (!token) {
+      return NextResponse.json({ error: 'Token não enviado' }, { status: 401 })
+    }
+
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
+
+    if (!user || error) {
+      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 })
     }
 
     // Buscar dados do usuário
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', user.id)
@@ -40,7 +49,7 @@ export async function POST(request: NextRequest) {
       customerId = customer.id
 
       // Atualizar usuário com customer_id
-      await supabase
+      await supabaseAdmin
         .from('users')
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id)
