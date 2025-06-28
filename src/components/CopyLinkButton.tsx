@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface CopyLinkButtonProps {
   username: string
@@ -10,8 +10,15 @@ export default function CopyLinkButton({ username }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [qrCode, setQrCode] = useState('')
+  const [catalogUrl, setCatalogUrl] = useState('')
 
-  const catalogUrl = `https://catalogozap.com/${username}`
+  useEffect(() => {
+    // Detectar o host atual automaticamente
+    const host = window.location.host
+    const protocol = window.location.protocol
+    const baseUrl = `${protocol}//${host}`
+    setCatalogUrl(`${baseUrl}/${username}`)
+  }, [username])
 
   const copyToClipboard = async () => {
     try {

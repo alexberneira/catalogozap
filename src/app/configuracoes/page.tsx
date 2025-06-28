@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import CopyLinkButton from '@/components/CopyLinkButton'
 import { User } from '@/lib/supabaseClient'
+import { useHost } from '@/hooks/useHost'
 
 export default function Configuracoes() {
   const [user, setUser] = useState<User | null>(null)
@@ -14,6 +15,7 @@ export default function Configuracoes() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const { baseUrl } = useHost()
   
   // Form fields
   const [username, setUsername] = useState('')
@@ -188,7 +190,7 @@ export default function Configuracoes() {
                   placeholder="meu-catalogo"
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Seu catálogo: catalogozap.com/{username}
+                  Seu catálogo: {baseUrl}/{username}
                 </p>
               </div>
 
@@ -213,130 +215,65 @@ export default function Configuracoes() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
               >
-                {saving ? 'Salvando...' : 'Salvar Alterações'}
+                {saving ? 'Salvando...' : 'Salvar alterações'}
               </button>
             </form>
           </div>
 
-          {/* Senha e Assinatura */}
-          <div className="space-y-6">
-            {/* Alterar Senha */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Alterar Senha</h2>
-              
-              <form onSubmit={handleChangePassword} className="space-y-4">
-                <div>
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
-                    Nova Senha
-                  </label>
-                  <input
-                    type="password"
-                    id="newPassword"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                    Confirmar Nova Senha
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {saving ? 'Alterando...' : 'Alterar Senha'}
-                </button>
-              </form>
-            </div>
-
-            {/* Assinatura */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Assinatura</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Status da Assinatura</p>
-                    <p className="text-sm text-gray-600">
-                      {user?.is_active ? 'Ativa (Premium)' : 'Inativa (Gratuito)'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user?.is_active ? 'R$ 19/mês' : 'Grátis'}
-                    </p>
-                  </div>
-                </div>
-
-                {user?.is_active ? (
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-3">
-                      Para cancelar sua assinatura, entre em contato com o suporte
-                    </p>
-                    <Link
-                      href="/upgrade"
-                      className="text-blue-600 hover:text-blue-500 font-medium"
-                    >
-                      Gerenciar Assinatura
-                    </Link>
-                  </div>
-                ) : (
-                  <Link
-                    href="/upgrade"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium text-center block"
-                  >
-                    Fazer Upgrade
-                  </Link>
-                )}
+          {/* Alterar Senha */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Alterar Senha</h2>
+            
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                  Nova senha
+                </label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
-            </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Confirmar nova senha
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+              >
+                {saving ? 'Alterando...' : 'Alterar senha'}
+              </button>
+            </form>
           </div>
         </div>
 
-        {/* Link Encurtado e QR Code */}
-        {user && (
-          <div className="mt-8 bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Compartilhe seu catálogo
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Use o link encurtado e QR Code para compartilhar seu catálogo nas redes sociais
-              </p>
-            </div>
-            <div className="p-6">
-              <CopyLinkButton username={user.username} />
-            </div>
+        {/* Link do Catálogo */}
+        {user?.username && (
+          <div className="mt-8">
+            <CopyLinkButton username={user.username} />
           </div>
         )}
-
-        {/* Voltar ao Dashboard */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/dashboard"
-            className="text-blue-600 hover:text-blue-500 font-medium"
-          >
-            ← Voltar ao Dashboard
-          </Link>
-        </div>
       </div>
     </div>
   )
