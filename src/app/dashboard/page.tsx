@@ -204,12 +204,6 @@ export default function Dashboard() {
               <h2 className="text-xl font-semibold text-gray-900">
                 Seus Produtos ({products.length})
               </h2>
-              <Link
-                href="/cadastro-produto"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-              >
-                + Adicionar Produto
-              </Link>
             </div>
           </div>
           
@@ -234,67 +228,79 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
-              {products.map((product) => (
-                <div key={product.id} className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-                    <div className="flex items-start space-x-4">
-                      <div className="h-16 w-16 flex-shrink-0">
-                        <img
-                          className="h-16 w-16 rounded-lg object-cover"
-                          src={product.image_url}
-                          alt={product.title}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-lg font-medium text-gray-900 mb-1">
-                          {product.title}
+            <>
+              <div className="divide-y divide-gray-200">
+                {products.map((product) => (
+                  <div key={product.id} className="p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                      <div className="flex items-start space-x-4">
+                        <div className="h-16 w-16 flex-shrink-0">
+                          <img
+                            className="h-16 w-16 rounded-lg object-cover"
+                            src={product.image_url}
+                            alt={product.title}
+                          />
                         </div>
-                        <div className="text-sm text-gray-500 mb-2">
-                          {product.description.length > 100 
-                            ? `${product.description.substring(0, 100)}...` 
-                            : product.description
-                          }
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm">
-                          <span className="text-gray-900 font-medium">
-                            {formatPrice(product.price)}
-                          </span>
-                          <span className="text-gray-500">
-                            {new Date(product.created_at).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-3">
-                      <Link
-                        href={`/editar-produto/${product.id}`}
-                        className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                      >
-                        Editar
-                      </Link>
-                      <button
-                        onClick={async () => {
-                          if (confirm('Tem certeza que deseja excluir este produto?')) {
-                            const { error } = await supabase
-                              .from('products')
-                              .delete()
-                              .eq('id', product.id)
-                            
-                            if (!error) {
-                              setProducts(products.filter(p => p.id !== product.id))
+                        <div className="flex-1 min-w-0">
+                          <div className="text-lg font-medium text-gray-900 mb-1">
+                            {product.title}
+                          </div>
+                          <div className="text-sm text-gray-500 mb-2">
+                            {product.description.length > 100 
+                              ? `${product.description.substring(0, 100)}...` 
+                              : product.description
                             }
-                          }
-                        }}
-                        className="text-red-600 hover:text-red-900 text-sm font-medium"
-                      >
-                        Excluir
-                      </button>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm">
+                            <span className="text-gray-900 font-medium">
+                              {formatPrice(product.price)}
+                            </span>
+                            <span className="text-gray-500">
+                              {new Date(product.created_at).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-3">
+                        <Link
+                          href={`/editar-produto/${product.id}`}
+                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                        >
+                          Editar
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                              const { error } = await supabase
+                                .from('products')
+                                .delete()
+                                .eq('id', product.id)
+                              
+                              if (!error) {
+                                setProducts(products.filter(p => p.id !== product.id))
+                              }
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-900 text-sm font-medium"
+                        >
+                          Excluir
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              
+              {/* Botão Adicionar Produto */}
+              <div className="px-6 py-4 border-t border-gray-200">
+                <Link
+                  href="/cadastro-produto"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  + Adicionar Produto
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -63,7 +63,7 @@ export default function CadastroProduto() {
         
         // Atualizar o estado do usuário se necessário
         if (data.is_active !== user?.is_active) {
-          setUser((prev: any) => prev ? { ...prev, is_active: data.is_active } : authUser)
+          setUser((prev: any) => prev ? { ...prev, is_active: data.is_active } : { ...authUser, is_active: data.is_active })
         }
       }
     } catch (error) {

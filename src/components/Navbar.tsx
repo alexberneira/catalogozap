@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     // Verificar usuário atual
@@ -34,6 +35,10 @@ export default function Navbar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  const isActive = (path: string) => {
+    return pathname === path
   }
 
   if (loading) {
@@ -67,7 +72,11 @@ export default function Navbar() {
               <>
                 <Link 
                   href="/dashboard" 
-                  className="text-gray-700 hover:text-gray-900 p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center"
+                  className={`p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center transition-colors ${
+                    isActive('/dashboard') 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                   title="Dashboard"
                 >
                   <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +87,11 @@ export default function Navbar() {
                 </Link>
                 <Link 
                   href="/estatisticas" 
-                  className="text-gray-700 hover:text-gray-900 p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center"
+                  className={`p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center transition-colors ${
+                    isActive('/estatisticas') 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                   title="Estatísticas"
                 >
                   <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +101,11 @@ export default function Navbar() {
                 </Link>
                 <Link 
                   href="/configuracoes" 
-                  className="text-gray-700 hover:text-gray-900 p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center"
+                  className={`p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center transition-colors ${
+                    isActive('/configuracoes') 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                   title="Configurações"
                 >
                   <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +116,7 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="text-gray-700 hover:text-gray-900 p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center"
+                  className="text-gray-700 hover:text-gray-900 p-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center hover:bg-gray-100 transition-colors"
                   title="Sair"
                 >
                   <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">

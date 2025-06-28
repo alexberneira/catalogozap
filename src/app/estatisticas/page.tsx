@@ -209,39 +209,52 @@ export default function Estatisticas() {
           </div>
         )}
 
-        {/* Gráfico Simples */}
-        {chartData.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Últimos 30 dias</h2>
-            <div className="h-64 flex items-end justify-between space-x-1">
-              {chartData.slice(-30).map((day, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center">
-                  <div className="w-full bg-gray-200 rounded-t" style={{ height: `${Math.max(day.views, day.clicks) * 2}px` }}>
-                    <div 
-                      className="bg-blue-500 rounded-t" 
-                      style={{ height: `${day.views * 2}px` }}
-                      title={`${day.views} visualizações`}
-                    ></div>
-                    <div 
-                      className="bg-green-500" 
-                      style={{ height: `${day.clicks * 2}px` }}
-                      title={`${day.clicks} cliques`}
-                    ></div>
-                  </div>
-                  <span className="text-xs text-gray-500 mt-1">
-                    {formatDate(day.date)}
-                  </span>
+        {/* Métricas Detalhadas */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Esta Semana</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Visualizações:</span>
+                  <span className="font-medium">{formatNumber(stats.views_week)}</span>
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-center space-x-6 mt-4">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Visualizações</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Cliques:</span>
+                  <span className="font-medium">{formatNumber(stats.clicks_week)}</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Cliques</span>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Este Mês</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Visualizações:</span>
+                  <span className="font-medium">{formatNumber(stats.views_month)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Cliques:</span>
+                  <span className="font-medium">{formatNumber(stats.clicks_month)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumo</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total de visualizações:</span>
+                  <span className="font-medium">{formatNumber(stats.total_views)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total de cliques:</span>
+                  <span className="font-medium">{formatNumber(stats.total_clicks)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Taxa de conversão:</span>
+                  <span className="font-medium">{getConversionRate()}%</span>
+                </div>
               </div>
             </div>
           </div>
