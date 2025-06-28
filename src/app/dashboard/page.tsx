@@ -86,6 +86,35 @@ export default function Dashboard() {
     }
   }
 
+  const checkSubscriptionStatus = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
+      const response = await fetch('/api/check-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Status da assinatura:', data)
+        
+        // Atualizar o estado do usuário
+        setUser(prev => prev ? { ...prev, is_active: data.is_active } : null)
+        
+        // Mostrar mensagem de sucesso
+        alert(data.message)
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status da assinatura:', error)
+      alert('Erro ao verificar status da assinatura')
+    }
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
@@ -228,6 +257,83 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* Status do Plano */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Seu Plano</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className={`p-3 rounded-full ${user?.is_active ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                {user?.is_active ? (
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {user?.is_active ? 'Plano Premium' : 'Plano Gratuito'}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {user?.is_active 
+                    ? 'Produtos ilimitados • R$19/mês' 
+                    : `${products.length}/3 produtos • Grátis`
+                  }
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              {user?.is_active ? (
+                <div className="text-sm text-gray-600">
+                  <p>Assinatura ativa</p>
+                  <p className="text-green-600 font-medium">✓ Premium</p>
+                </div>
+              ) : (
+                <Link
+                  href="/upgrade"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  Fazer Upgrade
+                </Link>
+              )}
+            </div>
+          </div>
+          
+          {/* Informações adicionais do plano */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <p className="text-gray-600">Produtos cadastrados:</p>
+                <p className="font-medium">{products.length} {user?.is_active ? '(ilimitado)' : ''}</p>
+              </div>
+              <div>
+                <p className="text-gray-600">Visualizações totais:</p>
+                <p className="font-medium">{stats?.total_views || 0}</p>
+              </div>
+              <div>
+                <p className="text-gray-600">Cliques totais:</p>
+                <p className="font-medium">{stats?.total_clicks || 0}</p>
+              </div>
+            </div>
+            
+            {/* Botão para verificar assinatura */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <button
+                onClick={checkSubscriptionStatus}
+                className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+              >
+                🔄 Verificar status da assinatura
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Clique aqui se você assinou o plano mas ainda não consegue adicionar mais produtos
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Produtos */}
         <div className="bg-white rounded-lg shadow">

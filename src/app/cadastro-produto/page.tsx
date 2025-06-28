@@ -32,6 +32,9 @@ export default function CadastroProduto() {
 
     setUser(authUser)
 
+    // Verificar e corrigir status da assinatura
+    await checkSubscriptionStatus(authUser)
+
     // Contar produtos do usuário
     const { count } = await supabase
       .from('products')
@@ -39,6 +42,33 @@ export default function CadastroProduto() {
       .eq('user_id', authUser.id)
 
     setProductCount(count || 0)
+  }
+
+  const checkSubscriptionStatus = async (authUser: any) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
+      const response = await fetch('/api/check-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Status da assinatura:', data)
+        
+        // Atualizar o estado do usuário se necessário
+        if (data.is_active !== user?.is_active) {
+          setUser((prev: any) => prev ? { ...prev, is_active: data.is_active } : authUser)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status da assinatura:', error)
+    }
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,19 +258,24 @@ export default function CadastroProduto() {
             
             <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-                Preço (R$) *
+                Preço *
               </label>
-              <input
-                type="number"
-                id="price"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
-                min="0"
-                step="0.01"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="29,90"
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 sm:text-sm">R$</span>
+                </div>
+                <input
+                  type="number"
+                  id="price"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  required
+                  min="0"
+                  step="0.01"
+                  className="pl-12 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="0,00"
+                />
+              </div>
             </div>
             
             <div>
@@ -260,27 +295,19 @@ export default function CadastroProduto() {
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="w-32 h-32 object-cover rounded-md"
+                    className="h-32 w-32 object-cover rounded-lg"
                   />
                 </div>
               )}
             </div>
             
-            <div className="flex justify-end space-x-3">
-              <Link
-                href="/dashboard"
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </Link>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Salvando...' : 'Salvar Produto'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+            >
+              {loading ? 'Adicionando...' : 'Adicionar Produto'}
+            </button>
           </form>
         </div>
       </div>
