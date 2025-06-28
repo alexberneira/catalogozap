@@ -124,10 +124,15 @@ export default function Configuracoes() {
   const checkSubscription = async () => {
     setCheckingSubscription(true)
     try {
+      // Obter o token de acesso
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
       const response = await fetch('/api/check-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
         },
       })
 
@@ -150,10 +155,15 @@ export default function Configuracoes() {
 
     setCancelingSubscription(true)
     try {
+      // Obter o token de acesso
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
       const response = await fetch('/api/cancel-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
         },
       })
 
@@ -176,10 +186,15 @@ export default function Configuracoes() {
   const reactivateSubscription = async () => {
     setReactivatingSubscription(true)
     try {
+      // Obter o token de acesso
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
       const response = await fetch('/api/reactivate-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
         },
       })
 
