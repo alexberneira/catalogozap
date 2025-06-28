@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { notFound } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
 import { Product } from '@/lib/supabaseClient'
+import CatalogTracker from '@/components/CatalogTracker'
 
 interface PageProps {
   params: Promise<{
@@ -36,6 +37,9 @@ export default async function CatalogPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Tracking Component */}
+      <CatalogTracker username={username} />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -82,7 +86,7 @@ export default async function CatalogPage({ params }: PageProps) {
       <div className="bg-white border-t mt-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 mb-2">
               Criado com{' '}
               <a 
                 href="https://catalogozap.com" 
@@ -93,6 +97,34 @@ export default async function CatalogPage({ params }: PageProps) {
                 CatálogoZap
               </a>
             </p>
+            <div className="flex justify-center space-x-4 text-xs text-gray-500">
+              <a 
+                href="/termos" 
+                className="hover:text-gray-700"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Termos de Uso
+              </a>
+              <span>•</span>
+              <a 
+                href="/privacidade" 
+                className="hover:text-gray-700"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Política de Privacidade
+              </a>
+              <span>•</span>
+              <a 
+                href="/suporte" 
+                className="hover:text-gray-700"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Suporte
+              </a>
+            </div>
           </div>
         </div>
       </div>

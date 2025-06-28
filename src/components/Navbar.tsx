@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     // Verificar usuário atual
@@ -31,6 +33,7 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
+    router.push('/login')
   }
 
   if (loading) {
@@ -67,6 +70,18 @@ export default function Navbar() {
                   className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Dashboard
+                </Link>
+                <Link 
+                  href="/estatisticas" 
+                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Estatísticas
+                </Link>
+                <Link 
+                  href="/configuracoes" 
+                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Configurações
                 </Link>
                 <button
                   onClick={handleSignOut}

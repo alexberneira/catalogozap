@@ -21,6 +21,28 @@ export default function ProductCard({ product, whatsappNumber, username }: Produ
     return encodeURIComponent(message)
   }
 
+  const trackClick = async () => {
+    try {
+      await fetch('/api/analytics/track-click', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          username,
+          product_id: product.id 
+        }),
+      })
+    } catch (error) {
+      console.error('Erro ao registrar clique:', error)
+    }
+  }
+
+  const handleWhatsAppClick = () => {
+    trackClick()
+    // O link do WhatsApp abrirá automaticamente
+  }
+
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${createWhatsAppMessage()}`
 
   return (
@@ -51,6 +73,7 @@ export default function ProductCard({ product, whatsappNumber, username }: Produ
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleWhatsAppClick}
           className="block mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 w-full text-center"
         >
           <span className="flex items-center justify-center space-x-2">

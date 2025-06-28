@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
+import CopyLinkButton from '@/components/CopyLinkButton'
 import { User, Product } from '@/lib/supabaseClient'
 
 export default function Dashboard() {
@@ -12,11 +13,14 @@ export default function Dashboard() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [deletingProduct, setDeletingProduct] = useState<string | null>(null)
+  const [quickStats, setQuickStats] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
     checkUser()
     fetchProducts()
+    fetchQuickStats()
   }, [])
 
   const checkUser = async () => {
@@ -62,6 +66,66 @@ export default function Dashboard() {
     setLoading(false)
   }
 
+  const fetchQuickStats = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
+      const response = await fetch('/api/analytics/stats', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      })
+      const data = await response.json()
+      
+      if (response.ok && data.stats) {
+        setQuickStats(data.stats)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas rápidas:', error)
+    }
+  }
+
+  const handleEditProduct = (productId: string) => {
+    router.push(`/editar-produto/${productId}`)
+  }
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este produto?')) {
+      return
+    }
+
+    setDeletingProduct(productId)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const accessToken = session?.access_token
+
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || 'Erro ao deletar produto')
+        return
+      }
+
+      // Remover produto da lista
+      setProducts(products.filter(p => p.id !== productId))
+    } catch (error) {
+      setError('Erro inesperado. Tente novamente.')
+    } finally {
+      setDeletingProduct(null)
+    }
+  }
+
   const canAddMoreProducts = () => {
     if (!user) return false
     return user.is_active || products.length < 3
@@ -72,6 +136,10 @@ export default function Dashboard() {
       return 'Plano Premium - Produtos ilimitados'
     }
     return `${products.length}/3 produtos (plano gratuito)`
+  }
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('pt-BR').format(num)
   }
 
   if (loading) {
@@ -137,8 +205,43 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* Quick Stats */}
+        {quickStats && (
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Estatísticas Rápidas</h2>
+              <Link
+                href="/estatisticas"
+                className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+              >
+                Ver detalhes →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-600">{formatNumber(quickStats.total_views)}</p>
+                <p className="text-sm text-gray-600">Visualizações</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600">{formatNumber(quickStats.total_clicks)}</p>
+                <p className="text-sm text-gray-600">Cliques WhatsApp</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-purple-600">
+                  {quickStats.total_views > 0 ? ((quickStats.total_clicks / quickStats.total_views) * 100).toFixed(1) : '0'}%
+                </p>
+                <p className="text-sm text-gray-600">Taxa Conversão</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-orange-600">{formatNumber(quickStats.views_today)}</p>
+                <p className="text-sm text-gray-600">Visualizações Hoje</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Products Section */}
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow mb-8">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium text-gray-900">Seus Produtos</h2>
@@ -212,11 +315,18 @@ export default function Dashboard() {
                       R$ {product.price.toFixed(2)}
                     </p>
                     <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <button 
+                        onClick={() => handleEditProduct(product.id)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
                         Editar
                       </button>
-                      <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                        Excluir
+                      <button 
+                        onClick={() => handleDeleteProduct(product.id)}
+                        disabled={deletingProduct === product.id}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {deletingProduct === product.id ? 'Excluindo...' : 'Excluir'}
                       </button>
                     </div>
                   </div>
@@ -225,6 +335,23 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+
+        {/* Link Encurtado e QR Code Section */}
+        {user && (
+          <div className="bg-white rounded-lg shadow">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-900">
+                Compartilhe seu catálogo
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Use o link encurtado e QR Code para compartilhar seu catálogo
+              </p>
+            </div>
+            <div className="p-6">
+              <CopyLinkButton username={user.username} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
