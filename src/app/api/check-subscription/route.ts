@@ -4,7 +4,17 @@ import stripe from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Token não enviado' },
+        { status: 401 }
+      )
+    }
+
+    const { data: { user }, error } = await supabase.auth.getUser(token)
     
     if (!user || error) {
       return NextResponse.json(
