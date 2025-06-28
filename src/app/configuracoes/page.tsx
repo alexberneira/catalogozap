@@ -26,6 +26,9 @@ export default function Configuracoes() {
   const router = useRouter()
   const [subscription, setSubscription] = useState<any>(null)
   const [checkingSubscription, setCheckingSubscription] = useState(false)
+  const [cancelingSubscription, setCancelingSubscription] = useState(false)
+  const [reactivatingSubscription, setReactivatingSubscription] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -140,6 +143,62 @@ export default function Configuracoes() {
     }
   }
 
+  const cancelSubscription = async () => {
+    if (!confirm('Tem certeza que deseja cancelar sua assinatura? Você continuará com acesso ilimitado até o final do período atual.')) {
+      return
+    }
+
+    setCancelingSubscription(true)
+    try {
+      const response = await fetch('/api/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setMessage({ type: 'success', text: data.message })
+        await checkSubscription() // Atualizar dados da assinatura
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao cancelar assinatura' })
+      }
+    } catch (error) {
+      console.error('Erro ao cancelar assinatura:', error)
+      setMessage({ type: 'error', text: 'Erro ao cancelar assinatura' })
+    } finally {
+      setCancelingSubscription(false)
+    }
+  }
+
+  const reactivateSubscription = async () => {
+    setReactivatingSubscription(true)
+    try {
+      const response = await fetch('/api/reactivate-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setMessage({ type: 'success', text: data.message })
+        await checkSubscription() // Atualizar dados da assinatura
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao reativar assinatura' })
+      }
+    } catch (error) {
+      console.error('Erro ao reativar assinatura:', error)
+      setMessage({ type: 'error', text: 'Erro ao reativar assinatura' })
+    } finally {
+      setReactivatingSubscription(false)
+    }
+  }
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString('pt-BR')
@@ -194,6 +253,22 @@ export default function Configuracoes() {
         {success && (
           <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-6">
             {success}
+          </div>
+        )}
+
+        {message && (
+          <div className={`mb-6 p-4 rounded-md ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
+            <p className="text-sm">{message.text}</p>
+            <button 
+              onClick={() => setMessage(null)}
+              className="mt-2 text-xs underline"
+            >
+              Fechar
+            </button>
           </div>
         )}
 
@@ -323,7 +398,9 @@ export default function Configuracoes() {
                 </div>
                 {subscription.current_period_end && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Próxima cobrança</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {subscription.cancel_at_period_end ? 'Cancelamento efetivo' : 'Próxima cobrança'}
+                    </label>
                     <p className="mt-1 text-sm text-gray-900">
                       {formatDate(subscription.current_period_end)}
                     </p>
@@ -336,13 +413,36 @@ export default function Configuracoes() {
                     </p>
                   </div>
                 )}
-                <button
-                  onClick={checkSubscription}
-                  disabled={checkingSubscription}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {checkingSubscription ? 'Verificando...' : 'Verificar Status'}
-                </button>
+                
+                <div className="space-y-2">
+                  {subscription.status === 'active' && !subscription.cancel_at_period_end && (
+                    <button
+                      onClick={cancelSubscription}
+                      disabled={cancelingSubscription}
+                      className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:opacity-50"
+                    >
+                      {cancelingSubscription ? 'Cancelando...' : 'Cancelar Assinatura'}
+                    </button>
+                  )}
+                  
+                  {subscription.cancel_at_period_end && (
+                    <button
+                      onClick={reactivateSubscription}
+                      disabled={reactivatingSubscription}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
+                    >
+                      {reactivatingSubscription ? 'Reativando...' : 'Reativar Assinatura'}
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={checkSubscription}
+                    disabled={checkingSubscription}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {checkingSubscription ? 'Verificando...' : 'Verificar Status'}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="text-center">
