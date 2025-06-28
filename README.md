@@ -12,6 +12,8 @@ Um microSaaS completo que permite criar catálogos online simples e bonitos para
 - ✅ **Assinatura mensal** via Stripe (R$19/mês)
 - ✅ **Limite gratuito** de 3 produtos
 - ✅ **Design responsivo** mobile-first
+- ✅ **Sistema de analytics** com tracking de visualizações e cliques
+- ✅ **Modal de visualização** para ver produtos como aparecem no catálogo
 
 ## 🛠️ Stack Tecnológica
 
