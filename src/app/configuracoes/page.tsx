@@ -24,6 +24,8 @@ export default function Configuracoes() {
   const [confirmPassword, setConfirmPassword] = useState('')
   
   const router = useRouter()
+  const [subscription, setSubscription] = useState<any>(null)
+  const [checkingSubscription, setCheckingSubscription] = useState(false)
 
   useEffect(() => {
     checkUser()
@@ -113,6 +115,47 @@ export default function Configuracoes() {
       setError('Erro inesperado. Tente novamente.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const checkSubscription = async () => {
+    setCheckingSubscription(true)
+    try {
+      const response = await fetch('/api/check-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+      setSubscription(data)
+      
+      // Atualizar dados do usuário
+      await checkUser()
+    } catch (error) {
+      console.error('Erro ao verificar assinatura:', error)
+    } finally {
+      setCheckingSubscription(false)
+    }
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A'
+    return new Date(dateString).toLocaleDateString('pt-BR')
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'text-green-600'
+      case 'past_due':
+        return 'text-yellow-600'
+      case 'canceled':
+      case 'unpaid':
+        return 'text-red-600'
+      default:
+        return 'text-gray-600'
     }
   }
 
@@ -265,6 +308,53 @@ export default function Configuracoes() {
                 {saving ? 'Alterando...' : 'Alterar senha'}
               </button>
             </form>
+          </div>
+
+          {/* Assinatura */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Assinatura</h2>
+            {subscription ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <p className={`mt-1 text-sm font-medium ${getStatusColor(subscription.status)}`}>
+                    {subscription.message}
+                  </p>
+                </div>
+                {subscription.current_period_end && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Próxima cobrança</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {formatDate(subscription.current_period_end)}
+                    </p>
+                  </div>
+                )}
+                {subscription.cancel_at_period_end && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ Sua assinatura será cancelada no final do período atual
+                    </p>
+                  </div>
+                )}
+                <button
+                  onClick={checkSubscription}
+                  disabled={checkingSubscription}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {checkingSubscription ? 'Verificando...' : 'Verificar Status'}
+                </button>
+              </div>
+            ) : (
+              <div className="text-center">
+                <button
+                  onClick={checkSubscription}
+                  disabled={checkingSubscription}
+                  className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {checkingSubscription ? 'Verificando...' : 'Verificar Assinatura'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

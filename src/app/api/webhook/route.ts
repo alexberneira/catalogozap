@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  console.log('🔔 Webhook recebido:', event.type)
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -43,7 +45,29 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', session.metadata.user_id)
         
-        console.log('Assinatura ativada para usuário:', session.metadata.user_id)
+        console.log('✅ Assinatura ativada para usuário:', session.metadata.user_id)
+        break
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as any
+        
+        // Buscar usuário pelo subscription_id
+        const { data: user } = await supabase
+          .from('users')
+          .select('*')
+          .eq('stripe_subscription_id', invoice.subscription)
+          .single()
+
+        if (user) {
+          // Reativar usuário se pagamento foi bem-sucedido
+          await supabase
+            .from('users')
+            .update({ is_active: true })
+            .eq('id', user.id)
+          
+          console.log('✅ Pagamento confirmado - usuário reativado:', user.id)
+        }
         break
       }
 
@@ -64,7 +88,31 @@ export async function POST(request: NextRequest) {
             .update({ is_active: false })
             .eq('id', user.id)
           
-          console.log('Usuário desativado por falha no pagamento:', user.id)
+          console.log('❌ Usuário desativado por falha no pagamento:', user.id)
+          console.log('📧 Enviar email de notificação para:', user.email)
+        }
+        break
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as any
+        
+        // Buscar usuário pelo subscription_id
+        const { data: user } = await supabase
+          .from('users')
+          .select('*')
+          .eq('stripe_subscription_id', subscription.id)
+          .single()
+
+        if (user) {
+          // Atualizar status baseado no status da assinatura
+          const isActive = subscription.status === 'active'
+          await supabase
+            .from('users')
+            .update({ is_active: isActive })
+            .eq('id', user.id)
+          
+          console.log(`🔄 Status da assinatura atualizado para usuário ${user.id}: ${subscription.status}`)
         }
         break
       }
@@ -89,18 +137,53 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', user.id)
           
-          console.log('Usuário desativado por cancelamento:', user.id)
+          console.log('❌ Usuário desativado por cancelamento:', user.id)
+          console.log('📧 Enviar email de cancelamento para:', user.email)
+        }
+        break
+      }
+
+      case 'customer.subscription.trial_will_end': {
+        const subscription = event.data.object as any
+        
+        // Buscar usuário pelo subscription_id
+        const { data: user } = await supabase
+          .from('users')
+          .select('*')
+          .eq('stripe_subscription_id', subscription.id)
+          .single()
+
+        if (user) {
+          console.log('⚠️ Trial vai terminar para usuário:', user.id)
+          console.log('📧 Enviar email de aviso para:', user.email)
+        }
+        break
+      }
+
+      case 'invoice.upcoming': {
+        const invoice = event.data.object as any
+        
+        // Buscar usuário pelo subscription_id
+        const { data: user } = await supabase
+          .from('users')
+          .select('*')
+          .eq('stripe_subscription_id', invoice.subscription)
+          .single()
+
+        if (user) {
+          console.log('📅 Próxima fatura para usuário:', user.id)
+          console.log('📧 Enviar email de lembrete para:', user.email)
         }
         break
       }
 
       default:
-        console.log(`Evento não tratado: ${event.type}`)
+        console.log(`ℹ️ Evento não tratado: ${event.type}`)
     }
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error('Erro ao processar webhook:', error)
+    console.error('❌ Erro ao processar webhook:', error)
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
