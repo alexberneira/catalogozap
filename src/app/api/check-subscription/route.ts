@@ -48,27 +48,95 @@ export async function POST(request: NextRequest) {
       is_active: userData.is_active
     })
 
-    // DEBUG: Verificar se stripe_customer_id está vazio
-    console.log('🔍 stripe_customer_id é:', userData.stripe_customer_id)
-    console.log('🔍 stripe_customer_id é null?', userData.stripe_customer_id === null)
-    console.log('🔍 stripe_customer_id é undefined?', userData.stripe_customer_id === undefined)
-    console.log('🔍 stripe_customer_id é string vazia?', userData.stripe_customer_id === '')
+    // PRIMEIRA VERIFICAÇÃO: Se is_active é false no banco, retornar free imediatamente
+    if (userData.is_active === false) {
+      console.log('❌ Usuário marcado como inativo no banco - retornando free')
+      return NextResponse.json({
+        status: 'free',
+        is_active: false,
+        subscription_id: userData.stripe_subscription_id,
+        current_period_end: null,
+        cancel_at_period_end: false,
+        message: 'Usuário sem assinatura ativa'
+      })
+    }
 
-    // Se não tem subscription_id, verificar se tem customer_id
-    if (!userData.stripe_subscription_id) {
-      // Se não tem customer_id, usuário é free
-      if (!userData.stripe_customer_id || userData.stripe_customer_id === '') {
-        console.log('❌ Usuário não tem customer_id - é usuário free')
+    // SEGUNDA VERIFICAÇÃO: Se não tem subscription_id nem customer_id, é free
+    if (!userData.stripe_subscription_id && (!userData.stripe_customer_id || userData.stripe_customer_id === '')) {
+      console.log('❌ Usuário não tem subscription_id nem customer_id - é usuário free')
+      return NextResponse.json({
+        status: 'free',
+        is_active: false,
+        subscription_id: null,
+        current_period_end: null,
+        cancel_at_period_end: false,
+        message: 'Usuário sem assinatura ativa'
+      })
+    }
+
+    // TERCEIRA VERIFICAÇÃO: Se tem subscription_id, verificar no Stripe
+    if (userData.stripe_subscription_id) {
+      console.log('🔍 Verificando assinatura no Stripe:', userData.stripe_subscription_id)
+      
+      try {
+        const subscription = await stripe.subscriptions.retrieve(
+          userData.stripe_subscription_id
+        ) as any
+
+        console.log('📊 Dados da assinatura no Stripe:', {
+          id: subscription.id,
+          status: subscription.status,
+          current_period_end: subscription.current_period_end,
+          cancel_at_period_end: subscription.cancel_at_period_end
+        })
+
+        const isActive = subscription.status === 'active'
+        
+        console.log('✅ Status da assinatura:', isActive ? 'ATIVA' : 'INATIVA')
+        
+        // Atualizar status no banco se necessário
+        if (userData.is_active !== isActive) {
+          console.log('🔄 Atualizando is_active no banco de:', userData.is_active, 'para:', isActive)
+          await supabase
+            .from('users')
+            .update({ is_active: isActive })
+            .eq('id', user.id)
+        }
+
         return NextResponse.json({
-          status: 'free',
+          status: subscription.status,
+          is_active: isActive,
+          subscription_id: subscription.id,
+          current_period_end: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
+          cancel_at_period_end: subscription.cancel_at_period_end || false,
+          message: getStatusMessage(subscription.status, subscription.cancel_at_period_end || false)
+        })
+
+      } catch (stripeError) {
+        console.error('❌ Erro ao verificar assinatura no Stripe:', stripeError)
+        
+        // Se a assinatura não existe mais no Stripe, desativar usuário
+        await supabase
+          .from('users')
+          .update({ 
+            is_active: false,
+            stripe_subscription_id: null 
+          })
+          .eq('id', user.id)
+
+        return NextResponse.json({
+          status: 'cancelled',
           is_active: false,
           subscription_id: null,
           current_period_end: null,
           cancel_at_period_end: false,
-          message: 'Usuário sem assinatura ativa'
+          message: 'Assinatura não encontrada no Stripe - usuário desativado'
         })
       }
+    }
 
+    // QUARTA VERIFICAÇÃO: Se tem customer_id mas não subscription_id, buscar no Stripe
+    if (userData.stripe_customer_id && userData.stripe_customer_id !== '') {
       console.log('🔍 Buscando assinaturas ativas no Stripe para o usuário')
       
       try {
@@ -102,6 +170,13 @@ export async function POST(request: NextRequest) {
           })
         } else {
           console.log('❌ Nenhuma assinatura ativa encontrada no Stripe')
+          
+          // Se não encontrou assinatura ativa, desativar usuário
+          await supabase
+            .from('users')
+            .update({ is_active: false })
+            .eq('id', user.id)
+          
           return NextResponse.json({
             status: 'free',
             is_active: false,
@@ -113,6 +188,13 @@ export async function POST(request: NextRequest) {
         }
       } catch (stripeError) {
         console.error('❌ Erro ao buscar assinaturas no Stripe:', stripeError)
+        
+        // Em caso de erro, desativar usuário por segurança
+        await supabase
+          .from('users')
+          .update({ is_active: false })
+          .eq('id', user.id)
+        
         return NextResponse.json({
           status: 'free',
           is_active: false,
@@ -124,64 +206,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Verificar status da assinatura no Stripe
-    try {
-      console.log('🔍 Verificando assinatura no Stripe:', userData.stripe_subscription_id)
-      
-      const subscription = await stripe.subscriptions.retrieve(
-        userData.stripe_subscription_id
-      ) as any
-
-      console.log('📊 Dados da assinatura no Stripe:', {
-        id: subscription.id,
-        status: subscription.status,
-        current_period_end: subscription.current_period_end,
-        cancel_at_period_end: subscription.cancel_at_period_end
-      })
-
-      const isActive = subscription.status === 'active'
-      
-      console.log('✅ Status da assinatura:', isActive ? 'ATIVA' : 'INATIVA')
-      
-      // Atualizar status no banco se necessário
-      if (userData.is_active !== isActive) {
-        console.log('🔄 Atualizando is_active no banco de:', userData.is_active, 'para:', isActive)
-        await supabase
-          .from('users')
-          .update({ is_active: isActive })
-          .eq('id', user.id)
-      }
-
-      return NextResponse.json({
-        status: subscription.status,
-        is_active: isActive,
-        subscription_id: subscription.id,
-        current_period_end: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
-        cancel_at_period_end: subscription.cancel_at_period_end || false,
-        message: getStatusMessage(subscription.status, subscription.cancel_at_period_end || false)
-      })
-
-    } catch (stripeError) {
-      console.error('❌ Erro ao verificar assinatura no Stripe:', stripeError)
-      
-      // Se a assinatura não existe mais no Stripe, desativar usuário
-      await supabase
-        .from('users')
-        .update({ 
-          is_active: false,
-          stripe_subscription_id: null 
-        })
-        .eq('id', user.id)
-
-      return NextResponse.json({
-        status: 'cancelled',
-        is_active: false,
-        subscription_id: null,
-        current_period_end: null,
-        cancel_at_period_end: false,
-        message: 'Assinatura não encontrada no Stripe - usuário desativado'
-      })
-    }
+    // FALLBACK: Se chegou até aqui, é free
+    console.log('❌ Fallback: usuário é free')
+    return NextResponse.json({
+      status: 'free',
+      is_active: false,
+      subscription_id: null,
+      current_period_end: null,
+      cancel_at_period_end: false,
+      message: 'Usuário sem assinatura ativa'
+    })
 
   } catch (error) {
     console.error('❌ Erro na verificação de assinatura:', error)
