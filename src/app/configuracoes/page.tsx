@@ -30,6 +30,46 @@ export default function Configuracoes() {
   const [reactivatingSubscription, setReactivatingSubscription] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
+  // Função para formatar o número do WhatsApp
+  const formatWhatsAppNumber = (number: string): string => {
+    // Remove todos os caracteres não numéricos
+    const cleanNumber = number.replace(/\D/g, '')
+    
+    // Se já tem código do país (55), retorna como está
+    if (cleanNumber.startsWith('55')) {
+      return cleanNumber
+    }
+    
+    // Se tem 11 dígitos (DDD + número), adiciona 55
+    if (cleanNumber.length === 11) {
+      return `55${cleanNumber}`
+    }
+    
+    // Se tem 10 dígitos (DDD + número sem 9), adiciona 55
+    if (cleanNumber.length === 10) {
+      return `55${cleanNumber}`
+    }
+    
+    // Se tem 13 dígitos (já com código do país), retorna como está
+    if (cleanNumber.length === 13) {
+      return cleanNumber
+    }
+    
+    // Para outros casos, adiciona 55 se não tiver
+    if (!cleanNumber.startsWith('55')) {
+      return `55${cleanNumber}`
+    }
+    
+    return cleanNumber
+  }
+
+  const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Permite apenas números
+    const numericValue = value.replace(/\D/g, '')
+    setWhatsappNumber(numericValue)
+  }
+
   useEffect(() => {
     checkUser()
   }, [])
@@ -67,11 +107,16 @@ export default function Configuracoes() {
     setSuccess('')
 
     try {
+      // Formatar o número do WhatsApp antes de salvar
+      const formattedWhatsAppNumber = formatWhatsAppNumber(whatsappNumber)
+      console.log('📱 Número original:', whatsappNumber)
+      console.log('📱 Número formatado:', formattedWhatsAppNumber)
+
       const { error: updateError } = await supabase
         .from('users')
         .update({
           username,
-          whatsapp_number: whatsappNumber,
+          whatsapp_number: formattedWhatsAppNumber,
         })
         .eq('id', user?.id)
 
@@ -81,7 +126,8 @@ export default function Configuracoes() {
       }
 
       setSuccess('Perfil atualizado com sucesso!')
-      setUser(prev => prev ? { ...prev, username, whatsapp_number: whatsappNumber } : null)
+      setUser(prev => prev ? { ...prev, username, whatsapp_number: formattedWhatsAppNumber } : null)
+      setWhatsappNumber(formattedWhatsAppNumber)
     } catch (error) {
       setError('Erro inesperado. Tente novamente.')
     } finally {
@@ -341,13 +387,13 @@ export default function Configuracoes() {
                   type="tel"
                   id="whatsapp"
                   value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  onChange={handleWhatsAppChange}
                   required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="5511999999999"
+                  placeholder="11999999999"
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Apenas números, sem espaços ou caracteres especiais
+                  Digite apenas números. O código do país (+55) será adicionado automaticamente.
                 </p>
               </div>
 

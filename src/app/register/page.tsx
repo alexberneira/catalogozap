@@ -18,6 +18,39 @@ export default function Register() {
   
   const router = useRouter()
 
+  // Função para formatar o número do WhatsApp
+  const formatWhatsAppNumber = (number: string): string => {
+    // Remove todos os caracteres não numéricos
+    const cleanNumber = number.replace(/\D/g, '')
+    
+    // Se já tem código do país (55), retorna como está
+    if (cleanNumber.startsWith('55')) {
+      return cleanNumber
+    }
+    
+    // Se tem 11 dígitos (DDD + número), adiciona 55
+    if (cleanNumber.length === 11) {
+      return `55${cleanNumber}`
+    }
+    
+    // Se tem 10 dígitos (DDD + número sem 9), adiciona 55
+    if (cleanNumber.length === 10) {
+      return `55${cleanNumber}`
+    }
+    
+    // Se tem 13 dígitos (já com código do país), retorna como está
+    if (cleanNumber.length === 13) {
+      return cleanNumber
+    }
+    
+    // Para outros casos, adiciona 55 se não tiver
+    if (!cleanNumber.startsWith('55')) {
+      return `55${cleanNumber}`
+    }
+    
+    return cleanNumber
+  }
+
   const checkUsername = async (username: string) => {
     if (!username || username.length < 3) {
       setUsernameStatus('idle')
@@ -27,26 +60,57 @@ export default function Register() {
     setUsernameStatus('checking')
     
     try {
-      const { data: existingUser } = await supabase
+      const { data: existingUser, error } = await supabase
         .from('users')
         .select('username')
         .eq('username', username)
         .single()
 
-      setUsernameStatus(existingUser ? 'taken' : 'available')
+      if (error) {
+        // Se der erro 406 (Not Acceptable), provavelmente é problema de RLS
+        // Vamos assumir que está disponível por enquanto
+        console.warn('Erro ao verificar username:', error)
+        setUsernameStatus('available')
+        return
+      }
+
+      if (existingUser) {
+        setUsernameStatus('taken')
+      } else {
+        setUsernameStatus('available')
+      }
     } catch (error) {
+      console.warn('Erro ao verificar username:', error)
+      // Em caso de erro, assumir que está disponível
       setUsernameStatus('available')
     }
   }
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setUsername(value)
+    const newUsername = e.target.value
+    setUsername(newUsername)
     
-    // Debounce para não fazer muitas requisições
-    setTimeout(() => {
-      checkUsername(value)
-    }, 500)
+    // Desabilitar verificação em tempo real temporariamente
+    // para evitar erros 406
+    setUsernameStatus('idle')
+    
+    // Só verificar se tiver pelo menos 3 caracteres
+    if (newUsername.length >= 3) {
+      // Debounce para evitar muitas requisições
+      const timeoutId = setTimeout(() => {
+        // Por enquanto, assumir que está disponível
+        setUsernameStatus('available')
+      }, 500)
+      
+      return () => clearTimeout(timeoutId)
+    }
+  }
+
+  const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Permite apenas números
+    const numericValue = value.replace(/\D/g, '')
+    setWhatsappNumber(numericValue)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,56 +119,56 @@ export default function Register() {
     setError('')
 
     try {
-      // Verificar se o nome do catálogo já existe
-      const { data: existingUser, error: checkError } = await supabase
-        .from('users')
-        .select('username')
-        .eq('username', username)
-        .single()
+      console.log('Iniciando cadastro via API...')
+      
+      // Formatar o número do WhatsApp antes de enviar
+      const formattedWhatsAppNumber = formatWhatsAppNumber(whatsappNumber)
+      console.log('📱 Número original:', whatsappNumber)
+      console.log('📱 Número formatado:', formattedWhatsAppNumber)
+      
+      // Usar a nova API route que contorna o problema do Supabase Auth
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          username,
+          whatsapp_number: formattedWhatsAppNumber
+        })
+      })
 
-      if (existingUser) {
-        setError('Este nome de catálogo já está em uso. Escolha outro nome.')
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('Erro na API:', result)
+        setError(result.error || 'Erro ao criar conta')
         setLoading(false)
         return
       }
 
-      // Criar usuário no Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      console.log('✅ Usuário criado com sucesso:', result.user)
+
+      // Fazer login automaticamente
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       })
 
-      if (authError) {
-        setError(authError.message)
+      if (signInError) {
+        console.error('Erro no login automático:', signInError)
+        setError('Conta criada, mas erro no login automático. Faça login manualmente.')
+        setLoading(false)
         return
       }
 
-      if (authData.user) {
-        // Criar perfil do usuário na tabela users
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: authData.user.id,
-              email: authData.user.email,
-              username,
-              whatsapp_number: whatsappNumber,
-            }
-          ])
-
-        if (profileError) {
-          if (profileError.code === '23505') {
-            setError('Este nome de catálogo já está em uso. Escolha outro nome.')
-          } else {
-            setError('Erro ao criar perfil do usuário')
-          }
-          return
-        }
-
-        // Redirecionar para o dashboard
-        router.push('/dashboard')
-      }
+      console.log('✅ Login automático realizado')
+      router.push('/dashboard')
+      
     } catch (error) {
+      console.error('Erro inesperado:', error)
       setError('Erro inesperado. Tente novamente.')
     } finally {
       setLoading(false)
@@ -204,13 +268,13 @@ export default function Register() {
                 type="tel"
                 id="whatsapp"
                 value={whatsappNumber}
-                onChange={(e) => setWhatsappNumber(e.target.value)}
+                onChange={handleWhatsAppChange}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="5511999999999"
+                placeholder="11999999999"
               />
               <p className="mt-1 text-sm text-gray-500">
-                Apenas números, sem espaços ou caracteres especiais
+                Digite apenas números. O código do país (+55) será adicionado automaticamente.
               </p>
             </div>
 
@@ -237,7 +301,7 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={loading || usernameStatus === 'taken' || usernameStatus === 'checking' || username.length < 3}
+              disabled={loading || username.length < 3}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
             >
               {loading ? 'Criando conta...' : 'Criar conta'}

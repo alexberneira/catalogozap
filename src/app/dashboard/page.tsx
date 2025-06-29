@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
   const { baseUrl } = useHost()
   
   const router = useRouter()
@@ -44,6 +45,9 @@ export default function Dashboard() {
 
     setUser(userData)
 
+    // Verificar status da assinatura
+    await checkSubscriptionStatus(authUser)
+
     // Buscar produtos do usuário
     const { data: productsData, error: productsError } = await supabase
       .from('products')
@@ -58,6 +62,29 @@ export default function Dashboard() {
     }
 
     setLoading(false)
+  }
+
+  const checkSubscriptionStatus = async (authUser: any) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) return
+
+      const response = await fetch('/api/check-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSubscriptionStatus(data)
+        console.log('📊 Status da assinatura:', data)
+      }
+    } catch (error) {
+      console.error('Erro ao verificar assinatura:', error)
+    }
   }
 
   const handleLogout = async () => {
@@ -87,6 +114,9 @@ export default function Dashboard() {
     const message = `Olá, quero o produto "${product.title}" que vi no seu catálogo CatálogoZap.`
     return encodeURIComponent(message)
   }
+
+  // Determinar se o usuário é premium baseado na assinatura real
+  const isPremium = subscriptionStatus?.is_active === true
 
   if (loading) {
     return (
@@ -160,8 +190,8 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Seu Plano</h2>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-4">
-              <div className={`p-3 rounded-full ${user?.is_active ? 'bg-green-100' : 'bg-yellow-100'}`}>
-                {user?.is_active ? (
+              <div className={`p-3 rounded-full ${isPremium ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                {isPremium ? (
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
@@ -173,10 +203,10 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-medium text-gray-900">
-                  {user?.is_active ? 'Plano Premium' : 'Plano Gratuito'}
+                  {isPremium ? 'Plano Premium' : 'Plano Gratuito'}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  {user?.is_active 
+                  {isPremium 
                     ? 'Até 20 produtos • R$19/mês' 
                     : `${products.length}/3 produtos • Grátis`
                   }
@@ -184,7 +214,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="text-center sm:text-right">
-              {user?.is_active ? (
+              {isPremium ? (
                 <div className="text-sm text-gray-600">
                   <p>Assinatura ativa</p>
                   <p className="text-green-600 font-medium">✓ Premium</p>
@@ -205,11 +235,11 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-600">Produtos cadastrados:</p>
-                <p className="font-medium">{products.length} {user?.is_active ? '/20' : '/3'}</p>
+                <p className="font-medium">{products.length} {isPremium ? '/20' : '/3'}</p>
               </div>
               <div>
                 <p className="text-gray-600">Status da conta:</p>
-                <p className="font-medium">{user?.is_active ? 'Ativa' : 'Gratuita'}</p>
+                <p className="font-medium">{isPremium ? 'Ativa' : 'Gratuita'}</p>
               </div>
             </div>
           </div>
@@ -327,7 +357,7 @@ export default function Dashboard() {
               
               {/* Botão Adicionar Produto */}
               <div className="px-6 py-4 border-t border-gray-200">
-                {user?.is_active && products.length >= 20 ? (
+                {isPremium && products.length >= 20 ? (
                   <div className="text-center">
                     <p className="text-sm text-gray-600 mb-2">
                       Você atingiu o limite de 20 produtos do seu plano
@@ -339,7 +369,7 @@ export default function Dashboard() {
                       Fazer Upgrade
                     </Link>
                   </div>
-                ) : !user?.is_active && products.length >= 3 ? (
+                ) : !isPremium && products.length >= 3 ? (
                   <div className="text-center">
                     <p className="text-sm text-gray-600 mb-2">
                       Você atingiu o limite de 3 produtos do plano gratuito

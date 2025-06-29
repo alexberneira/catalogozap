@@ -44,11 +44,31 @@ export async function POST(request: NextRequest) {
       id: userData.id,
       email: userData.email,
       stripe_subscription_id: userData.stripe_subscription_id,
+      stripe_customer_id: userData.stripe_customer_id,
       is_active: userData.is_active
     })
 
-    // Se não tem subscription_id, tentar buscar assinaturas ativas no Stripe
+    // DEBUG: Verificar se stripe_customer_id está vazio
+    console.log('🔍 stripe_customer_id é:', userData.stripe_customer_id)
+    console.log('🔍 stripe_customer_id é null?', userData.stripe_customer_id === null)
+    console.log('🔍 stripe_customer_id é undefined?', userData.stripe_customer_id === undefined)
+    console.log('🔍 stripe_customer_id é string vazia?', userData.stripe_customer_id === '')
+
+    // Se não tem subscription_id, verificar se tem customer_id
     if (!userData.stripe_subscription_id) {
+      // Se não tem customer_id, usuário é free
+      if (!userData.stripe_customer_id || userData.stripe_customer_id === '') {
+        console.log('❌ Usuário não tem customer_id - é usuário free')
+        return NextResponse.json({
+          status: 'free',
+          is_active: false,
+          subscription_id: null,
+          current_period_end: null,
+          cancel_at_period_end: false,
+          message: 'Usuário sem assinatura ativa'
+        })
+      }
+
       console.log('🔍 Buscando assinaturas ativas no Stripe para o usuário')
       
       try {
