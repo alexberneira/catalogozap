@@ -219,12 +219,11 @@ export default function CadastroProduto() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Adicionar Produto</h1>
-            <p className="text-gray-600 mt-1">
-              {user.is_active 
-                ? `Plano Premium - ${productCount}/20 produtos` 
-                : `${productCount}/3 produtos (plano gratuito)`
-              }
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Adicionar novo produto
+            </h1>
+            <p className="text-slate-600 mb-8">
+              Crie um produto que vende no WhatsApp
             </p>
           </div>
           
@@ -237,7 +236,7 @@ export default function CadastroProduto() {
             
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Nome do Produto *
+                Nome do produto *
               </label>
               <input
                 type="text"
@@ -246,13 +245,13 @@ export default function CadastroProduto() {
                 onChange={(e) => setTitle(e.target.value)}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Ex: Camiseta Básica"
+                placeholder="Ex: Smartphone Samsung Galaxy"
               />
             </div>
             
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Descrição
+                Descrição atrativa
               </label>
               <textarea
                 id="description"
@@ -260,7 +259,7 @@ export default function CadastroProduto() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Descreva seu produto..."
+                placeholder="Descreva os benefícios do produto..."
               />
             </div>
             
@@ -288,7 +287,7 @@ export default function CadastroProduto() {
             
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                Imagem do Produto *
+                Foto do produto *
               </label>
               <input
                 type="file"
@@ -314,7 +313,7 @@ export default function CadastroProduto() {
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
             >
-              {loading ? 'Adicionando...' : 'Adicionar Produto'}
+              {loading ? 'Criando produto...' : 'Criar produto'}
             </button>
           </form>
         </div>

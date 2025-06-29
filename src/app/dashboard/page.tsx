@@ -174,17 +174,22 @@ function DashboardContent() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600 mt-2">
-                Bem-vindo de volta, {user?.email}
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                Seu catálogo que vende
+              </h1>
+              <p className="text-slate-600 mb-6">
+                Gerencie seus produtos e acompanhe suas vendas
               </p>
             </div>
             <div className="mt-4 sm:mt-0 flex space-x-3">
               <Link
                 href="/cadastro-produto"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2"
               >
-                + Adicionar Produto
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Adicionar novo produto</span>
               </Link>
               <Link
                 href="/estatisticas"
@@ -317,10 +322,10 @@ function DashboardContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
               <h3 className="mt-4 text-lg font-medium text-gray-900">
-                Nenhum produto cadastrado
+                Comece adicionando seu primeiro produto
               </h3>
               <p className="mt-2 text-gray-600">
-                Comece adicionando seu primeiro produto para criar seu catálogo.
+                Crie seu primeiro produto para começar a vender mais no WhatsApp.
               </p>
               <div className="mt-6">
                 <Link
@@ -440,9 +445,12 @@ function DashboardContent() {
                 ) : (
                   <Link
                     href="/cadastro-produto"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2"
                   >
-                    + Adicionar Produto
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span>Adicionar novo produto</span>
                   </Link>
                 )}
               </div>

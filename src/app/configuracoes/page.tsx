@@ -314,9 +314,11 @@ export default function Configuracoes() {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Configurações</h1>
-          <p className="text-gray-600 mt-2">
-            Gerencie suas informações pessoais e configurações da conta
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            Configurar seu catálogo
+          </h1>
+          <p className="text-slate-600 mb-8">
+            Personalize seu perfil de vendedor
           </p>
         </div>
 
@@ -372,7 +374,7 @@ export default function Configuracoes() {
 
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                  Nome de usuário
+                  Nome do seu negócio
                 </label>
                 <input
                   type="text"
@@ -381,7 +383,7 @@ export default function Configuracoes() {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="meu-catalogo"
+                  placeholder="minha-loja"
                 />
                 <p className="mt-1 text-sm text-gray-500">
                   Seu catálogo: {baseUrl}/{username}
@@ -390,7 +392,7 @@ export default function Configuracoes() {
 
               <div>
                 <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700">
-                  Número do WhatsApp
+                  WhatsApp para vendas
                 </label>
                 <input
                   type="tel"
@@ -411,7 +413,7 @@ export default function Configuracoes() {
                 disabled={saving}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
               >
-                {saving ? 'Salvando...' : 'Salvar alterações'}
+                {saving ? 'Salvando...' : 'Atualizar perfil'}
               </button>
             </form>
           </div>

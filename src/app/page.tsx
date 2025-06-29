@@ -55,32 +55,27 @@ export default function Home() {
               </svg>
             </div>
             <div className="mb-6">
-              <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-4 tracking-tight leading-tight">
-                Catálogo Público
+              <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
+                Venda 10x mais no WhatsApp
               </h1>
-              <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
+              <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl">
+                Transforme seu WhatsApp em uma loja profissional
+              </p>
             </div>
-            <p className="text-2xl md:text-3xl font-bold text-blue-600 mb-6 animate-pulse">
-              Venda 10x mais no WhatsApp!
-            </p>
-            <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
-              Transforme seus produtos em um catálogo digital bonito e profissional. 
-              Compartilhe o link na sua bio do WhatsApp e venda mais!
-            </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <Link
               href="/register"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl"
             >
-              Criar catálogo grátis
+              Criar meu catálogo grátis
             </Link>
             <Link
               href="/demo"
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-lg text-lg font-semibold transition-colors duration-200"
+              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl text-lg font-semibold transition-colors duration-200"
             >
-              Ver exemplo
+              Ver exemplo de catálogo
             </Link>
           </div>
         </div>
@@ -126,8 +121,8 @@ export default function Home() {
 
         {/* CTA Section */}
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Comece a vender mais hoje mesmo!
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-12 text-center">
+            Por que milhares de vendedores escolhem o Catálogo Público?
           </h2>
           <p className="text-gray-600 mb-6">
             Junte-se a milhares de empreendedores que já estão vendendo mais com o Catálogo Público

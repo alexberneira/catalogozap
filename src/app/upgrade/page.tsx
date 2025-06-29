@@ -92,18 +92,18 @@ export default function Upgrade() {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Faça Upgrade para o Plano Premium
+          <h1 className="text-4xl font-bold text-slate-900 mb-4 text-center">
+            Venda mais com Premium
           </h1>
-          <p className="text-xl text-gray-600">
-            Desbloqueie até 20 produtos e recursos avançados
+          <p className="text-xl text-slate-600 mb-8 text-center max-w-2xl mx-auto">
+            Desbloqueie todo o potencial do seu catálogo
           </p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8 text-white text-center">
             <h2 className="text-3xl font-bold mb-2">Plano Premium</h2>
-            <p className="text-blue-100">R$ 19/mês</p>
+            <p className="text-blue-100">Apenas R$ 19/mês</p>
           </div>
 
           <div className="p-8">
@@ -117,19 +117,19 @@ export default function Upgrade() {
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Até 20 produtos
+                    Venda 20x mais produtos
                   </li>
                   <li className="flex items-center">
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Estatísticas avançadas
+                    Veja quem está interessado
                   </li>
                   <li className="flex items-center">
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Suporte prioritário
+                    Suporte VIP
                   </li>
                   <li className="flex items-center">
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -182,7 +182,7 @@ export default function Upgrade() {
                 disabled={loading}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Processando...' : 'Fazer Upgrade - R$ 19/mês'}
+                {loading ? 'Processando...' : 'Começar a vender mais'}
               </button>
               <Link
                 href="/dashboard"

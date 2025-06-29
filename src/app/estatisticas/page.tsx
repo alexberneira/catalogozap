@@ -133,9 +133,11 @@ export default function Estatisticas() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Estatísticas</h1>
-          <p className="text-gray-600 mt-2">
-            Acompanhe o desempenho do seu catálogo
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            Suas vendas em números
+          </h1>
+          <p className="text-slate-600 mb-8">
+            Veja como seu catálogo está performando
           </p>
         </div>
 
@@ -171,7 +173,7 @@ export default function Estatisticas() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Cliques no WhatsApp</p>
+                  <p className="text-sm font-medium text-gray-600">Interesses no WhatsApp</p>
                   <p className="text-2xl font-bold text-gray-900">{formatNumber(stats.total_clicks)}</p>
                 </div>
               </div>
@@ -220,7 +222,7 @@ export default function Estatisticas() {
                   <span className="font-medium">{formatNumber(stats.views_week)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Cliques:</span>
+                  <span className="text-gray-600">Interesses:</span>
                   <span className="font-medium">{formatNumber(stats.clicks_week)}</span>
                 </div>
               </div>
@@ -234,7 +236,7 @@ export default function Estatisticas() {
                   <span className="font-medium">{formatNumber(stats.views_month)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Cliques:</span>
+                  <span className="text-gray-600">Interesses:</span>
                   <span className="font-medium">{formatNumber(stats.clicks_month)}</span>
                 </div>
               </div>
@@ -248,7 +250,7 @@ export default function Estatisticas() {
                   <span className="font-medium">{formatNumber(stats.total_views)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total de cliques:</span>
+                  <span className="text-gray-600">Total de interesses:</span>
                   <span className="font-medium">{formatNumber(stats.total_clicks)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -280,7 +282,7 @@ export default function Estatisticas() {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-green-600">{item.count}</p>
-                    <p className="text-sm text-gray-600">cliques</p>
+                    <p className="text-sm text-gray-600">interesses</p>
                   </div>
                 </div>
               ))}

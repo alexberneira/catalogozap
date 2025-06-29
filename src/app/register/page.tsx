@@ -184,17 +184,11 @@ export default function Register() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <div className="mb-4">
-            <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-2 tracking-tight">
-              Catálogo Público
-            </h1>
-            <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
-          </div>
-          <p className="text-lg font-bold text-blue-600 mb-2 animate-pulse">
-            Venda 10x mais no WhatsApp!
-          </p>
-          <p className="text-gray-600">
-            Crie seu catálogo online e integre com WhatsApp
+          <h1 className="text-3xl font-bold text-slate-900 mb-2 text-center">
+            Criar meu catálogo
+          </h1>
+          <p className="text-slate-600 mb-8 text-center">
+            Comece a vender no WhatsApp hoje
           </p>
         </div>
         
@@ -216,7 +210,7 @@ export default function Register() {
 
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Nome do catálogo
+                Nome do negócio
               </label>
               <input
                 type="text"
@@ -229,7 +223,7 @@ export default function Register() {
                   usernameStatus === 'available' ? 'border-green-300' :
                   'border-gray-300'
                 }`}
-                placeholder="meu-catalogo"
+                placeholder="minha-loja"
               />
               <div className="mt-1 flex items-center space-x-2">
                 <p className="text-sm text-gray-500">
@@ -304,7 +298,7 @@ export default function Register() {
               disabled={loading || username.length < 3}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
             >
-              {loading ? 'Criando conta...' : 'Criar conta'}
+              {loading ? 'Criando catálogo...' : 'Criar meu catálogo'}
             </button>
           </form>
 
@@ -314,7 +308,7 @@ export default function Register() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Já tem uma conta?</span>
+                <span className="px-2 bg-white text-gray-500">Já tem catálogo?</span>
               </div>
             </div>
 
@@ -323,7 +317,7 @@ export default function Register() {
                 href="/login"
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
               >
-                Fazer login
+                Acessar
               </Link>
             </div>
           </div>
