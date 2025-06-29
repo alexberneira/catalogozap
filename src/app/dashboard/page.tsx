@@ -66,9 +66,14 @@ export default function Dashboard() {
 
   const checkSubscriptionStatus = async (authUser: any) => {
     try {
+      console.log('🔍 Dashboard: Iniciando verificação de assinatura...')
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) return
+      if (!session?.access_token) {
+        console.log('❌ Dashboard: Sem token de acesso')
+        return
+      }
 
+      console.log('🔍 Dashboard: Chamando API de verificação...')
       const response = await fetch('/api/check-subscription', {
         method: 'POST',
         headers: {
@@ -77,13 +82,16 @@ export default function Dashboard() {
         }
       })
 
+      console.log('🔍 Dashboard: Resposta da API:', response.status)
       if (response.ok) {
         const data = await response.json()
         setSubscriptionStatus(data)
-        console.log('📊 Status da assinatura:', data)
+        console.log('📊 Dashboard: Status da assinatura recebido:', data)
+      } else {
+        console.log('❌ Dashboard: Erro na API:', await response.text())
       }
     } catch (error) {
-      console.error('Erro ao verificar assinatura:', error)
+      console.error('❌ Dashboard: Erro ao verificar assinatura:', error)
     }
   }
 

@@ -170,10 +170,17 @@ export default function Configuracoes() {
   const checkSubscription = async () => {
     setCheckingSubscription(true)
     try {
+      console.log('🔍 Configurações: Iniciando verificação de assinatura...')
       // Obter o token de acesso
       const { data: { session } } = await supabase.auth.getSession()
       const accessToken = session?.access_token
 
+      if (!accessToken) {
+        console.log('❌ Configurações: Sem token de acesso')
+        return
+      }
+
+      console.log('🔍 Configurações: Chamando API de verificação...')
       const response = await fetch('/api/check-subscription', {
         method: 'POST',
         headers: {
@@ -182,13 +189,15 @@ export default function Configuracoes() {
         },
       })
 
+      console.log('🔍 Configurações: Resposta da API:', response.status)
       const data = await response.json()
+      console.log('📊 Configurações: Dados recebidos:', data)
       setSubscription(data)
       
       // Atualizar dados do usuário
       await checkUser()
     } catch (error) {
-      console.error('Erro ao verificar assinatura:', error)
+      console.error('❌ Configurações: Erro ao verificar assinatura:', error)
     } finally {
       setCheckingSubscription(false)
     }
