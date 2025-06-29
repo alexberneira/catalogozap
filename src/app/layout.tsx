@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CatálogoZap - Crie seu catálogo online e integre com WhatsApp",
-  description: "Crie seu catálogo online profissional e integre com WhatsApp. Compartilhe seus produtos de forma simples e eficiente.",
-  keywords: "catálogo online, whatsapp, produtos, vendas, e-commerce, microSaaS",
-  authors: [{ name: "CatálogoZap" }],
+  title: "Catálogo Público - Crie seu catálogo online e integre com WhatsApp",
+  description: "Crie seu catálogo online profissional e integre com WhatsApp. Ferramenta completa para empreendedores venderem mais.",
+  keywords: ["catálogo", "whatsapp", "vendas", "empreendedor", "produtos"],
+  authors: [{ name: "Catálogo Público" }],
   openGraph: {
-    title: "CatálogoZap - Crie seu catálogo online e integre com WhatsApp",
+    title: "CatálogoPúblico - Crie seu catálogo online e integre com WhatsApp",
     description: "Crie seu catálogo online profissional e integre com WhatsApp. Compartilhe seus produtos de forma simples e eficiente.",
     type: "website",
     locale: "pt_BR",

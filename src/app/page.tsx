@@ -119,7 +119,7 @@ export default function Home() {
             Comece a vender mais hoje mesmo!
           </h2>
           <p className="text-gray-600 mb-6">
-            Junte-se a milhares de empreendedores que já estão vendendo mais com o CatálogoZap
+            Junte-se a milhares de empreendedores que já estão vendendo mais com o Catálogo Público
           </p>
           <Link
             href="/register"

@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo e Descrição */}
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-xl font-bold text-white mb-4">CatálogoZap</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Catálogo Público</h3>
             <p className="text-gray-300 mb-4 max-w-md">
               Crie seu catálogo online profissional e integre com WhatsApp. 
               Compartilhe seus produtos de forma simples e eficiente.
@@ -109,7 +109,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 CatálogoZap. Todos os direitos reservados.
+              © 2024 Catálogo Público. Todos os direitos reservados.
             </p>
             <p className="text-gray-400 text-sm mt-2 md:mt-0">
               Feito com ❤️ para empreendedores

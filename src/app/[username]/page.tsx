@@ -286,7 +286,7 @@ export default function CatalogPage({ params }: CatalogPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-slate-500 text-sm">
-              Powered by <span className="font-semibold text-blue-600">CatZap</span>
+              Powered by <span className="font-semibold text-blue-600">Catálogo Público</span>
             </p>
           </div>
         </div>
