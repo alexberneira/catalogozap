@@ -287,124 +287,121 @@ export async function POST(request: NextRequest) {
           payment_intent: refund.payment_intent
         })
         
-        // Buscar usuário pelo payment_intent
-        const { data: user, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('stripe_subscription_id', refund.payment_intent)
-          .single()
-
-        if (userError) {
-          console.error('❌ Erro ao buscar usuário por payment_intent:', userError)
-          console.log('🔍 Tentando buscar por charge_id...')
+        // Primeiro, tentar buscar a charge para obter o customer_id
+        let customerId = null
+        let chargeData = null
+        
+        if (refund.charge) {
+          try {
+            chargeData = await stripe.charges.retrieve(refund.charge)
+            customerId = chargeData.customer
+            console.log('🔍 Charge encontrada:', {
+              id: chargeData.id,
+              customer: customerId,
+              payment_intent: chargeData.payment_intent
+            })
+          } catch (chargeError) {
+            console.error('❌ Erro ao buscar charge:', chargeError)
+          }
+        }
+        
+        // Se temos customer_id, buscar usuário por ele
+        if (customerId) {
+          console.log('🔍 Buscando usuário por customer_id:', customerId)
           
-          // Tentar buscar por customer_id se disponível
-          if (refund.charge) {
-            // Buscar a charge para obter o customer_id
-            try {
-              const charge = await stripe.charges.retrieve(refund.charge)
-              console.log('🔍 Charge encontrada:', {
-                id: charge.id,
-                customer: charge.customer,
-                payment_intent: charge.payment_intent
-              })
+          const { data: userByCustomer, error: customerError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('stripe_customer_id', customerId)
+            .single()
+
+          if (customerError) {
+            console.error('❌ Erro ao buscar usuário por customer_id:', customerError)
+            
+            // Se não encontrou um único usuário, buscar todos com esse customer_id
+            console.log('🔍 Buscando todos os usuários com customer_id para debug...')
+            
+            const { data: allUsers, error: allError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('stripe_customer_id', customerId)
+
+            if (!allError && allUsers && allUsers.length > 0) {
+              console.log('🔍 Usuários encontrados com customer_id:', allUsers.map(u => ({ 
+                id: u.id, 
+                email: u.email, 
+                is_active: u.is_active,
+                stripe_subscription_id: u.stripe_subscription_id 
+              })))
               
-              const { data: userByCustomer, error: customerError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('stripe_customer_id', charge.customer)
-                .single()
-
-              if (customerError) {
-                console.error('❌ Erro ao buscar usuário por customer_id:', customerError)
-                console.log('🔍 Tentando buscar por payment_intent da charge...')
-                
-                // Tentar buscar por payment_intent da charge
-                const { data: userByPaymentIntent, error: paymentError } = await supabase
-                  .from('users')
-                  .select('*')
-                  .eq('stripe_subscription_id', charge.payment_intent)
-                  .single()
-
-                if (paymentError) {
-                  console.error('❌ Erro ao buscar usuário por payment_intent da charge:', paymentError)
-                  console.log('🔍 Buscando todos os usuários com customer_id para debug...')
-                  
-                  // Debug: buscar todos os usuários com esse customer_id
-                  const { data: allUsers, error: allError } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('stripe_customer_id', charge.customer)
-
-                  if (!allError && allUsers && allUsers.length > 0) {
-                    console.log('🔍 Usuários encontrados com customer_id:', allUsers.map(u => ({ id: u.id, email: u.email, is_active: u.is_active })))
-                    
-                    // Desativar todos os usuários com esse customer_id
-                    for (const user of allUsers) {
-                      const { error } = await supabase
-                        .from('users')
-                        .update({ 
-                          is_active: false,
-                          stripe_subscription_id: null 
-                        })
-                        .eq('id', user.id)
-                      
-                      if (error) {
-                        console.error('❌ Erro ao desativar usuário:', user.id, error)
-                      } else {
-                        console.log('❌ Usuário desativado por reembolso:', user.id)
-                      }
-                    }
-                  } else {
-                    console.log('⚠️ Nenhum usuário encontrado com customer_id:', charge.customer)
-                  }
-                } else if (userByPaymentIntent) {
-                  const { error } = await supabase
-                    .from('users')
-                    .update({ 
-                      is_active: false,
-                      stripe_subscription_id: null 
-                    })
-                    .eq('id', userByPaymentIntent.id)
-                  
-                  if (error) {
-                    console.error('❌ Erro ao desativar usuário por payment_intent:', error)
-                  } else {
-                    console.log('❌ Usuário desativado por reembolso (payment_intent):', userByPaymentIntent.id)
-                  }
-                }
-              } else if (userByCustomer) {
+              // Desativar todos os usuários com esse customer_id
+              for (const user of allUsers) {
                 const { error } = await supabase
                   .from('users')
                   .update({ 
                     is_active: false,
                     stripe_subscription_id: null 
                   })
-                  .eq('id', userByCustomer.id)
+                  .eq('id', user.id)
                 
                 if (error) {
-                  console.error('❌ Erro ao desativar usuário por reembolso:', error)
+                  console.error('❌ Erro ao desativar usuário:', user.id, error)
                 } else {
-                  console.log('❌ Usuário desativado por reembolso atualizado:', userByCustomer.id)
+                  console.log('❌ Usuário desativado por reembolso:', user.id, user.email)
                 }
               }
-            } catch (chargeError) {
-              console.error('❌ Erro ao buscar charge:', chargeError)
+            } else {
+              console.log('⚠️ Nenhum usuário encontrado com customer_id:', customerId)
+            }
+          } else if (userByCustomer) {
+            console.log('✅ Usuário encontrado por customer_id:', userByCustomer.id, userByCustomer.email)
+            
+            const { error } = await supabase
+              .from('users')
+              .update({ 
+                is_active: false,
+                stripe_subscription_id: null 
+              })
+              .eq('id', userByCustomer.id)
+            
+            if (error) {
+              console.error('❌ Erro ao desativar usuário por reembolso:', error)
+            } else {
+              console.log('❌ Usuário desativado por reembolso atualizado:', userByCustomer.id, userByCustomer.email)
             }
           }
-        } else if (user) {
-          const { error } = await supabase
-            .from('users')
-            .update({ 
-              is_active: false,
-              stripe_subscription_id: null 
-            })
-            .eq('id', user.id)
+        } else {
+          console.log('⚠️ Não foi possível obter customer_id do reembolso')
           
-          if (error) {
-            console.error('❌ Erro ao desativar usuário por reembolso:', error)
-          } else {
-            console.log('❌ Usuário desativado por reembolso atualizado:', user.id)
+          // Como último recurso, tentar buscar por payment_intent (mas isso provavelmente não vai funcionar)
+          if (refund.payment_intent) {
+            console.log('🔍 Tentando buscar por payment_intent como último recurso:', refund.payment_intent)
+            
+            const { data: userByPaymentIntent, error: paymentError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('stripe_subscription_id', refund.payment_intent)
+              .single()
+
+            if (paymentError) {
+              console.log('❌ Não foi possível encontrar usuário por payment_intent:', paymentError.message)
+            } else if (userByPaymentIntent) {
+              console.log('✅ Usuário encontrado por payment_intent:', userByPaymentIntent.id)
+              
+              const { error } = await supabase
+                .from('users')
+                .update({ 
+                  is_active: false,
+                  stripe_subscription_id: null 
+                })
+                .eq('id', userByPaymentIntent.id)
+              
+              if (error) {
+                console.error('❌ Erro ao desativar usuário por payment_intent:', error)
+              } else {
+                console.log('❌ Usuário desativado por reembolso (payment_intent):', userByPaymentIntent.id)
+              }
+            }
           }
         }
         break
