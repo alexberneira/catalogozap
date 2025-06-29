@@ -96,7 +96,7 @@ export default function Upgrade() {
             Faça Upgrade para o Plano Premium
           </h1>
           <p className="text-xl text-gray-600">
-            Desbloqueie produtos ilimitados e recursos avançados
+            Desbloqueie até 20 produtos e recursos avançados
           </p>
         </div>
 
@@ -117,7 +117,7 @@ export default function Upgrade() {
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Produtos ilimitados
+                    Até 20 produtos
                   </li>
                   <li className="flex items-center">
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -155,7 +155,7 @@ export default function Upgrade() {
                     <span className="text-gray-700">Produtos</span>
                     <div className="text-right">
                       <span className="text-gray-400 line-through">3</span>
-                      <span className="text-green-600 font-semibold ml-2">∞</span>
+                      <span className="text-green-600 font-semibold ml-2">20</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">

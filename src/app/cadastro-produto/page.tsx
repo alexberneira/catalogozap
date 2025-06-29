@@ -115,6 +115,11 @@ export default function CadastroProduto() {
         return
       }
 
+      if (user.is_active && productCount >= 20) {
+        setError('Limite de produtos atingido. Você já tem 20 produtos no seu plano.')
+        return
+      }
+
       if (!image) {
         setError('Selecione uma imagem para o produto')
         return
@@ -150,7 +155,7 @@ export default function CadastroProduto() {
     }
   }
 
-  const canAddProduct = user?.is_active || productCount < 3
+  const canAddProduct = (!user?.is_active && productCount < 3) || (user?.is_active && productCount < 20)
 
   if (!user) {
     return (
@@ -179,8 +184,11 @@ export default function CadastroProduto() {
               Limite de produtos atingido
             </h2>
             <p className="mt-2 text-gray-600">
-              Você já tem {productCount} produtos no plano gratuito. 
-              Faça upgrade para adicionar produtos ilimitados!
+              {user.is_active 
+                ? `Você já tem ${productCount}/20 produtos no seu plano premium.`
+                : `Você já tem ${productCount}/3 produtos no plano gratuito.`
+              }
+              {!user.is_active && ' Faça upgrade para adicionar até 20 produtos!'}
             </p>
             <div className="mt-6">
               <Link
@@ -214,7 +222,7 @@ export default function CadastroProduto() {
             <h1 className="text-2xl font-bold text-gray-900">Adicionar Produto</h1>
             <p className="text-gray-600 mt-1">
               {user.is_active 
-                ? 'Plano Premium - Produtos ilimitados' 
+                ? `Plano Premium - ${productCount}/20 produtos` 
                 : `${productCount}/3 produtos (plano gratuito)`
               }
             </p>

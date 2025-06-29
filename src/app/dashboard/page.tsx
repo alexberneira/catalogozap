@@ -177,7 +177,7 @@ export default function Dashboard() {
                 </h3>
                 <p className="text-sm text-gray-600">
                   {user?.is_active 
-                    ? 'Produtos ilimitados • R$19/mês' 
+                    ? 'Até 20 produtos • R$19/mês' 
                     : `${products.length}/3 produtos • Grátis`
                   }
                 </p>
@@ -205,7 +205,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-600">Produtos cadastrados:</p>
-                <p className="font-medium">{products.length} {user?.is_active ? '(ilimitado)' : ''}</p>
+                <p className="font-medium">{products.length} {user?.is_active ? '/20' : '/3'}</p>
               </div>
               <div>
                 <p className="text-gray-600">Status da conta:</p>
@@ -327,12 +327,38 @@ export default function Dashboard() {
               
               {/* Botão Adicionar Produto */}
               <div className="px-6 py-4 border-t border-gray-200">
-                <Link
-                  href="/cadastro-produto"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  + Adicionar Produto
-                </Link>
+                {user?.is_active && products.length >= 20 ? (
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Você atingiu o limite de 20 produtos do seu plano
+                    </p>
+                    <Link
+                      href="/upgrade"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    >
+                      Fazer Upgrade
+                    </Link>
+                  </div>
+                ) : !user?.is_active && products.length >= 3 ? (
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Você atingiu o limite de 3 produtos do plano gratuito
+                    </p>
+                    <Link
+                      href="/upgrade"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    >
+                      Fazer Upgrade
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    href="/cadastro-produto"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  >
+                    + Adicionar Produto
+                  </Link>
+                )}
               </div>
             </>
           )}

@@ -43,14 +43,19 @@ export default function Login() {
       <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-              Entrar na sua conta
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Ou{' '}
-              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                crie uma conta gratuita
-              </Link>
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div className="mb-4 text-center">
+              <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-2 tracking-tight">
+                Catálogo Público
+              </h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
+            </div>
+            <p className="text-lg font-bold text-blue-600 mb-4 animate-pulse text-center">
+              Venda 10x mais no WhatsApp!
             </p>
           </div>
           
@@ -105,6 +110,18 @@ export default function Login() {
               >
                 {loading ? 'Entrando...' : 'Entrar'}
               </button>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-gray-600 text-sm">
+                Entre na sua conta para continuar vendendo
+              </p>
+              <p className="text-sm text-gray-600">
+                Ou{' '}
+                <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                  crie uma conta gratuita
+                </Link>
+              </p>
             </div>
           </form>
         </div>

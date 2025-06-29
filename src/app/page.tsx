@@ -48,15 +48,26 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Crie seu catálogo online
-            <span className="text-blue-600 block">para WhatsApp</span>
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Transforme seus produtos em um catálogo digital bonito e profissional. 
-            Compartilhe o link na sua bio do WhatsApp e venda mais!
-          </p>
+          <div className="mb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div className="mb-6">
+              <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-4 tracking-tight leading-tight">
+                Catálogo Público
+              </h1>
+              <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
+            </div>
+            <p className="text-2xl md:text-3xl font-bold text-blue-600 mb-6 animate-pulse">
+              Venda 10x mais no WhatsApp!
+            </p>
+            <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+              Transforme seus produtos em um catálogo digital bonito e profissional. 
+              Compartilhe o link na sua bio do WhatsApp e venda mais!
+            </p>
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
