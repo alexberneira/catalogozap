@@ -336,6 +336,7 @@ export async function POST(request: NextRequest) {
               
               // Desativar todos os usuários com esse customer_id
               for (const user of allUsers) {
+                console.log('🔄 Desativando usuário:', user.id, user.email)
                 const { error } = await supabase
                   .from('users')
                   .update({ 
@@ -347,11 +348,21 @@ export async function POST(request: NextRequest) {
                 if (error) {
                   console.error('❌ Erro ao desativar usuário:', user.id, error)
                 } else {
-                  console.log('❌ Usuário desativado por reembolso:', user.id, user.email)
+                  console.log('✅ Usuário desativado por reembolso:', user.id, user.email)
                 }
               }
             } else {
               console.log('⚠️ Nenhum usuário encontrado com customer_id:', customerId)
+              
+              // Debug: mostrar todos os usuários com customer_id para comparação
+              const { data: allUsersWithCustomer, error: debugError } = await supabase
+                .from('users')
+                .select('id, email, stripe_customer_id, is_active')
+                .not('stripe_customer_id', 'is', null)
+              
+              if (!debugError && allUsersWithCustomer) {
+                console.log('🔍 Todos os usuários com customer_id no sistema:', allUsersWithCustomer)
+              }
             }
           } else if (userByCustomer) {
             console.log('✅ Usuário encontrado por customer_id:', userByCustomer.id, userByCustomer.email)
@@ -367,7 +378,7 @@ export async function POST(request: NextRequest) {
             if (error) {
               console.error('❌ Erro ao desativar usuário por reembolso:', error)
             } else {
-              console.log('❌ Usuário desativado por reembolso atualizado:', userByCustomer.id, userByCustomer.email)
+              console.log('✅ Usuário desativado por reembolso atualizado:', userByCustomer.id, userByCustomer.email)
             }
           }
         } else {
@@ -399,7 +410,7 @@ export async function POST(request: NextRequest) {
               if (error) {
                 console.error('❌ Erro ao desativar usuário por payment_intent:', error)
               } else {
-                console.log('❌ Usuário desativado por reembolso (payment_intent):', userByPaymentIntent.id)
+                console.log('✅ Usuário desativado por reembolso (payment_intent):', userByPaymentIntent.id)
               }
             }
           }
