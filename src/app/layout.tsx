@@ -1,7 +1,10 @@
+'use client'
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +34,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  
+  // Não mostrar o Footer na página do catálogo público (rotas dinâmicas)
+  const isCatalogPage = pathname && pathname !== '/' && !pathname.startsWith('/api') && !pathname.includes('/dashboard') && !pathname.includes('/login') && !pathname.includes('/register') && !pathname.includes('/configuracoes') && !pathname.includes('/cadastro-produto') && !pathname.includes('/editar-produto') && !pathname.includes('/estatisticas') && !pathname.includes('/upgrade') && !pathname.includes('/termos') && !pathname.includes('/privacidade');
+
   return (
     <html lang="pt-BR">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -38,7 +46,7 @@ export default function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
-          <Footer />
+          {!isCatalogPage && <Footer />}
         </div>
       </body>
     </html>
