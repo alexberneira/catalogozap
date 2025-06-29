@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { Product, User } from '@/lib/supabaseClient'
 import { useHost } from '@/hooks/useHost'
+import CatalogFooter from '@/components/CatalogFooter'
 
 interface CatalogPageProps {
   params: Promise<{ username: string }>
@@ -282,15 +283,7 @@ export default function CatalogPage({ params }: CatalogPageProps) {
       </div>
 
       {/* Footer */}
-      <div className="mt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-slate-500 text-sm">
-              Powered by <span className="font-semibold text-blue-600">Catálogo Público</span>
-            </p>
-          </div>
-        </div>
-      </div>
+      <CatalogFooter />
     </div>
   )
 } 
