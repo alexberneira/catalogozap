@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import { Product, User } from '@/lib/supabaseClient'
@@ -15,13 +15,38 @@ export default function Dashboard() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null)
   const { baseUrl } = useHost()
   
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     checkUser()
+    checkUrlParams()
   }, [])
+
+  const checkUrlParams = () => {
+    const success = searchParams.get('success')
+    const canceled = searchParams.get('canceled')
+    const sessionId = searchParams.get('session_id')
+
+    if (success === 'true') {
+      setMessage({
+        type: 'success',
+        text: '🎉 Pagamento realizado com sucesso! Sua assinatura premium foi ativada.'
+      })
+      // Limpar parâmetros da URL
+      router.replace('/dashboard')
+    } else if (canceled === 'true') {
+      setMessage({
+        type: 'info',
+        text: '❌ Pagamento cancelado. Você pode tentar novamente quando quiser.'
+      })
+      // Limpar parâmetros da URL
+      router.replace('/dashboard')
+    }
+  }
 
   const checkUser = async () => {
     const { data: { user: authUser } } = await supabase.auth.getUser()
@@ -170,6 +195,29 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Mensagem de Status */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : message.type === 'error'
+              ? 'bg-red-50 border border-red-200 text-red-800'
+              : 'bg-blue-50 border border-blue-200 text-blue-800'
+          }`}>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">{message.text}</p>
+              <button
+                onClick={() => setMessage(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Link do Catálogo */}
         {user?.username && (
