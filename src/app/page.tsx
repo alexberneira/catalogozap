@@ -64,7 +64,7 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 mb-12 justify-center items-center">
             <Link
               href="/register"
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl"
