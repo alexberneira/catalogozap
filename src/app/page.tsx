@@ -58,7 +58,7 @@ export default function Home() {
               <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
                 Venda 10x mais no WhatsApp
               </h1>
-              <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl">
+              <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto">
                 Transforme seu WhatsApp em uma loja profissional
               </p>
             </div>
