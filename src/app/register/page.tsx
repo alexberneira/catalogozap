@@ -100,12 +100,25 @@ export default function Register() {
     }
   };
 
-  const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    // Permite apenas números
-    const numericValue = value.replace(/\D/g, '')
-    setWhatsappNumber(numericValue)
+  // Função para aplicar máscara de telefone (celular com DDD)
+  function maskPhone(value: string) {
+    // Remove tudo que não for número
+    value = value.replace(/\D/g, '');
+    // Aplica a máscara (99) 99999-9999
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 6) {
+      return `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+    } else if (value.length > 2) {
+      return `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    } else {
+      return value;
+    }
   }
+
+  const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setWhatsappNumber(maskPhone(value));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -262,7 +275,8 @@ export default function Register() {
                 onChange={handleWhatsAppChange}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="11999999999"
+                placeholder="(11) 99999-9999"
+                maxLength={15}
               />
               <p className="mt-1 text-sm text-gray-500">
                 Digite apenas números. O código do país (+55) será adicionado automaticamente.
