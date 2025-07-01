@@ -87,24 +87,18 @@ export default function Register() {
   }
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUsername = e.target.value
-    setUsername(newUsername)
-    
-    // Desabilitar verificação em tempo real temporariamente
-    // para evitar erros 406
-    setUsernameStatus('idle')
-    
+    // Aceita apenas letras, números, hífen e underline
+    const value = e.target.value.replace(/[^a-zA-Z0-9_-]/g, '');
+    setUsername(value);
+    setUsernameStatus('idle');
     // Só verificar se tiver pelo menos 3 caracteres
-    if (newUsername.length >= 3) {
-      // Debounce para evitar muitas requisições
+    if (value.length >= 3) {
       const timeoutId = setTimeout(() => {
-        // Por enquanto, assumir que está disponível
-        setUsernameStatus('available')
-      }, 500)
-      
-      return () => clearTimeout(timeoutId)
+        setUsernameStatus('available');
+      }, 500);
+      return () => clearTimeout(timeoutId);
     }
-  }
+  };
 
   const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -225,6 +219,9 @@ export default function Register() {
                 }`}
                 placeholder="minha-loja"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Use apenas letras, números, hífen (-) e underline (_). Sem espaços.
+              </p>
               <div className="mt-1 flex items-center space-x-2">
                 <p className="text-sm text-gray-500">
                   Seu catálogo: {baseUrl}/{username || 'meu-catalogo'}
