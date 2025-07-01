@@ -56,14 +56,18 @@ export default function Home() {
             </div>
             <div className="mb-6">
               <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
-                Venda 10x mais no WhatsApp
+                Pare de perder vendas no WhatsApp
               </h1>
               <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto">
-                Transforme seu WhatsApp em uma loja profissional
+                Crie seu catálogo online grátis, compartilhe o link e receba pedidos direto no WhatsApp. Fácil, rápido e sem cartão de crédito.
               </p>
             </div>
           </div>
           
+          {/* Prova social */}
+          <div className="mb-4">
+            <p className="text-base text-green-700 font-semibold">Mais de 3.000 catálogos criados</p>
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 mb-12 justify-center items-center">
             <Link
               href="/register"
@@ -71,12 +75,25 @@ export default function Home() {
             >
               Criar meu catálogo grátis
             </Link>
+            <div className="text-xs text-gray-500 mt-2 sm:mt-0 text-center w-full sm:w-auto">
+              Grátis até 3 produtos. Não precisa de cartão de crédito.
+            </div>
             <Link
               href="/demo"
               className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl text-lg font-semibold transition-colors duration-200"
             >
               Ver exemplo de catálogo
             </Link>
+          </div>
+          {/* Passo a passo */}
+          <div className="mb-12 flex flex-col items-center">
+            <div className="bg-white rounded-xl shadow-lg px-6 py-4 inline-block">
+              <ol className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center justify-center text-base text-slate-700 font-medium">
+                <li><span className="font-bold text-blue-600">1.</span> Cadastre-se grátis</li>
+                <li><span className="font-bold text-blue-600">2.</span> Adicione seus produtos</li>
+                <li><span className="font-bold text-blue-600">3.</span> Compartilhe o link e receba pedidos no WhatsApp</li>
+              </ol>
+            </div>
           </div>
         </div>
 
@@ -122,10 +139,10 @@ export default function Home() {
         {/* CTA Section */}
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-12 text-center">
-            Por que milhares de vendedores escolhem o Catálogo Público?
+            Não perca mais vendas: comece agora mesmo!
           </h2>
           <p className="text-gray-600 mb-6">
-            Junte-se a milhares de empreendedores que já estão vendendo mais com o Catálogo Público
+            Em poucos minutos, seu catálogo estará online e pronto para receber pedidos. Muitos vendedores já estão vendendo mais com o Catálogo Público. O próximo pode ser você!
           </p>
           <Link
             href="/register"
@@ -133,6 +150,9 @@ export default function Home() {
           >
             Criar meu catálogo grátis
           </Link>
+          <div className="text-xs text-gray-500 mt-2">
+            Grátis até 3 produtos. Não precisa de cartão de crédito.
+          </div>
         </div>
       </main>
     </div>
