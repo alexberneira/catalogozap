@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://catalogopublico.com.br/sitemap.xml 
